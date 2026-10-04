@@ -52,11 +52,11 @@ app.use(async (q, r, n) => {
     n();
   } catch (e) { n(e); }
 });
+const setCookie = (q, r, t) => r.setHeader('Set-Cookie', `sid=${t}; HttpOnly; SameSite=Lax; Path=/; Max-Age=31536000${q.secure || q.headers['x-forwarded-proto'] === 'https' ? '; Secure' : ''}`);
 const startSession = async (q, r, u) => {
   const t = crypto.randomBytes(24).toString('hex');
   await run('INSERT INTO sessions VALUES(?,?)', [t, u.id]);
-  const sec = q.secure || q.headers['x-forwarded-proto'] === 'https' ? '; Secure' : '';
-  r.setHeader('Set-Cookie', `sid=${t}; HttpOnly; SameSite=Lax; Path=/; Max-Age=2592000${sec}`);
+  setCookie(q, r, t);
 };
 async function mkUser(b, admin) {
   if (!b.name?.trim() || !b.username?.trim() || (b.password || '').length < 4) throw fail(400, 'Please add a name, a username and a password of at least 4 characters');
@@ -64,10 +64,14 @@ async function mkUser(b, admin) {
     [b.name.trim(), b.emoji || '🐻', b.username.trim().toLowerCase(), hash(b.password), admin ? 1 : 0]);
   return row('users', Number(x.lastInsertRowid));
 }
-app.get('/api/auth/me', A(async (q, r) => r.json({ user: pub(q.user) || null, setup: await needSetup() })));
-app.post('/api/auth/setup', A(async (q, r) => {
-  if (!(await needSetup())) throw fail(403, 'Setup is already done. Please log in.');
-  const u = await mkUser(q.body, 1); await startSession(q, r, u); r.json(pub(u));
+app.get('/api/auth/me', A(async (q, r) => {
+  if (q.user) setCookie(q, r, q.sid); // stay logged in: renew for another year on every visit
+  r.json({ user: pub(q.user) || null, setup: await needSetup(), code: !!process.env.HOUSEHOLD_CODE });
+}));
+app.post('/api/auth/register', A(async (q, r) => {
+  const first = await needSetup(), code = process.env.HOUSEHOLD_CODE; // first account = admin
+  if (!first && code && String(q.body.code || '').trim() !== code) throw fail(403, 'That household code isn’t right');
+  const u = await mkUser(q.body, first ? 1 : 0); await startSession(q, r, u); r.json(pub(u));
 }));
 app.post('/api/auth/login', A(async (q, r) => {
   const u = await one('SELECT * FROM users WHERE username=?', [String(q.body.username || '').trim().toLowerCase()]);

@@ -154,10 +154,12 @@ o=>save('rewards',id,{...o,target:+o.target}),id&&(()=>api('DELETE','rewards/'+i
 function wire(d,onSub){const f=d.querySelector('form');f.noValidate=true;f.onsubmit=async e=>{e.preventDefault();
 const bad=[...f.elements].find(x=>x.required&&!x.value.trim());if(bad){toast('Please fill in “'+bad.closest('label').childNodes[0].textContent.trim()+'”');bad.focus();return}
 try{await onSub(Object.fromEntries(new FormData(f)))}catch(x){toast(x.message)}}}
-function showAuth(setup){const d=$('#a');d.oncancel=e=>e.preventDefault();
-d.innerHTML=`<form><h3 style="font-size:26px">🏡 chorebored</h3><p class="soft">${setup?'Welcome! Create the first account. You’ll be the admin and can add everyone else.':'Log in to your household'}</p>${setup?inp('Your name','name')+inp('Emoji','emoji','🐻'):''}${inp('Username','username')}${inp('Password','password','','password')}<div class="row"><button class="pri">${setup?'Create account 💖':'Log in'}</button></div></form>`;
-if(!d.open)d.showModal();wire(d,async o=>{await api('POST',setup?'auth/setup':'auth/login',o);d.close();boot()})}
+let AUTH={setup:false,code:false};
+function showAuth(reg){const d=$('#a');d.oncancel=e=>e.preventDefault();reg=reg||AUTH.setup;
+d.innerHTML=`<form><h3 style="font-size:26px">🏡 chorebored</h3><p class="soft">${reg?(AUTH.setup?'Welcome! Create the first account. You’ll be the admin.':'Create your account to join the household'):'Log in to your household'}</p>${reg?inp('Your name','name')+inp('Emoji','emoji','🐻'):''}${inp('Username','username')}${inp('Password','password','','password')}${reg&&!AUTH.setup&&AUTH.code?inp('Household code','code'):''}<div class="row"><button class="pri">${reg?'Create account 💖':'Log in'}</button></div>${AUTH.setup?'':`<p class="soft" style="text-align:center;margin:12px 0 0">${reg?'Already have an account?':'New here?'} <a href="#" id="sw">${reg?'Log in':'Create an account'}</a></p>`}</form>`;
+if(!d.open)d.showModal();const sw=$('#sw');if(sw)sw.onclick=e=>{e.preventDefault();showAuth(!reg)};
+wire(d,async o=>{await api('POST',reg?'auth/register':'auth/login',o);d.close();boot()})}
 const logout=async()=>{try{await api('POST','auth/logout');location.reload()}catch(e){toast(e.message)}};
-async function boot(){try{const a=await api('GET','auth/me');ME=a.user;if(!ME)return showAuth(a.setup);load()}catch(e){toast(e.message)}}
+async function boot(){try{const a=await api('GET','auth/me');ME=a.user;AUTH=a;if(!ME)return showAuth();load()}catch(e){toast(e.message)}}
 boot();
 </script></body></html>

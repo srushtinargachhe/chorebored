@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>chorebored 🏡</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏡</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff4f0;--card:#fff;--ink:#5a4468;--soft:#9b86a8;--pink:#ffb3cf;--mint:#bdeedd;--lemon:#fff0b3;--lav:#dccbff;--peach:#ffd3b8;--line:#f3e3ea}
+@media(prefers-color-scheme:dark){:root{--bg:#2a2133;--card:#382d45;--ink:#f6e9f5;--soft:#bba9c7;--line:#4b3d5a}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:700 15px Nunito,sans-serif;
+background-image:radial-gradient(var(--line) 2px,transparent 2px);background-size:26px 26px}
+h1,h2,h3,.f{font-family:Fredoka,sans-serif;font-weight:600;margin:0}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:18px 22px}
+h1{font-size:28px;margin-right:auto}h1 span{display:inline-block;animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-4px) rotate(-6deg)}}@media(prefers-reduced-motion:reduce){h1 span{animation:none}}
+nav{display:flex;gap:6px;background:var(--card);padding:5px;border-radius:99px;box-shadow:0 4px 14px #d9a6c633}
+nav button{border:0;background:none;padding:8px 16px;border-radius:99px;font:inherit;color:var(--soft);cursor:pointer}
+nav button.on{background:var(--pink);color:#5a2a45}
+button,select,input,textarea{font:inherit;color:var(--ink)}
+.pri{background:var(--lav);border:0;border-radius:99px;padding:9px 18px;cursor:pointer;font-weight:800;box-shadow:0 3px 0 #bba5ee;color:#43306b}
+.pri:active{transform:translateY(2px);box-shadow:0 1px 0 #bba5ee}
+.ghost{background:none;border:2px solid var(--line);border-radius:99px;padding:7px 14px;cursor:pointer}.red{color:#e0557f}
+select,input,textarea{background:var(--bg);border:2px solid var(--line);border-radius:14px;padding:8px 12px;width:100%}
+header select{width:auto}
+main{padding:0 22px 40px;max-width:1200px;margin:auto}
+.board{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:800px){.board{grid-template-columns:1fr}}
+.col{border-radius:26px;padding:14px;min-height:260px}.col h3{margin:2px 6px 12px;font-size:19px}
+.new{background:#ffe3ee}.in_progress{background:#fff6cf}.done{background:#dcf7ec}
+@media(prefers-color-scheme:dark){.new{background:#4a2e48}.in_progress{background:#4a4332}.done{background:#2c4a43}}
+.col.over{outline:3px dashed var(--lav)}
+.card{background:var(--card);border-radius:18px;padding:12px 14px;margin-bottom:10px;box-shadow:0 4px 12px #c9a0b822;cursor:grab}
+.card.d .t{text-decoration:line-through;color:var(--soft)}
+.t{font-size:16px;cursor:pointer}.meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px}
+.chip{border-radius:99px;padding:3px 10px;font-size:12.5px;background:var(--lemon);color:#6b5400}
+.chip.e{background:var(--lav);color:#43306b}.chip.u{background:var(--mint);color:#1d5a47}
+.mv{margin-left:auto;display:flex;gap:4px}.mv button{border:0;background:var(--bg);border-radius:50%;width:28px;height:28px;cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+.panel{background:var(--card);border-radius:24px;padding:18px;box-shadow:0 6px 18px #d9a6c622}
+.bar{height:14px;background:var(--line);border-radius:99px;overflow:hidden;margin:8px 0}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--pink),var(--lav));border-radius:99px;transition:width .4s}
+.sub{display:flex;gap:8px;align-items:center;padding:6px 0;border-top:2px dotted var(--line);cursor:pointer}
+.av{font-size:34px;background:var(--lemon);border-radius:50%;width:56px;height:56px;display:grid;place-items:center}
+.row{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:14px}.sp{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.sec{margin:26px 4px 12px;font-size:22px}.soft{color:var(--soft);font-size:13px}
+dialog{border:0;border-radius:26px;padding:22px;width:min(420px,92vw);background:var(--card);color:var(--ink);box-shadow:0 20px 60px #5a446855}
+dialog::backdrop{background:#5a446844}label{display:block;margin-top:10px;font-size:13px;color:var(--soft)}
+.empty{text-align:center;color:var(--soft);padding:18px 0}
+#toast{inset:auto auto 96px 50%;transform:translateX(-50%);margin:0;border:0;background:#5a2a45;color:#fff;border-radius:99px;padding:12px 20px;max-width:90vw;box-shadow:0 8px 24px #0004}
+.big{padding:14px 0;font-size:17px}.ck{font-size:24px}dialog{max-height:90vh;overflow:auto}
+@media(max-width:700px){header{padding:12px 14px;gap:8px}h1{font-size:23px;order:-2}#me{order:-1}header select,#add{flex:1;min-width:0}
+nav{position:fixed;bottom:10px;left:10px;right:10px;justify-content:space-around;z-index:5;box-shadow:0 6px 24px #b98fb066}nav button{flex:1;padding:9px 4px;font-size:13px}
+main{padding:0 14px 100px}.grid{grid-template-columns:1fr}.mv button{width:38px;height:38px}}
+.dd{position:relative}.dd summary{list-style:none;cursor:pointer;padding:7px 14px;border:2px solid var(--line);border-radius:99px;background:var(--card);text-align:center}
+.pop{position:absolute;z-index:6;top:46px;left:0;min-width:240px;background:var(--card);border-radius:18px;padding:10px 14px;box-shadow:0 10px 30px #5a446855}
+.pop label{display:flex;gap:8px;align-items:center;margin:0;padding:6px 2px;font-size:14px;color:var(--ink)}.pop input{width:auto}
+.sh{margin:12px 6px 8px;font:600 14px Fredoka,sans-serif;color:var(--soft)}
+@media(max-width:700px){.dd{flex:1}}
+.tr{display:flex;gap:10px;align-items:center}.dv{border-top:3px dotted var(--pink);margin:14px 6px}
+input.ck{appearance:none;-webkit-appearance:none;width:26px;height:26px;padding:0;border-radius:50%;border:3px solid var(--pink);background:var(--bg);cursor:pointer;flex:none;display:grid;place-content:center;font-size:16px}
+input.ck:checked{background:var(--mint);border-color:#7fd8b8}input.ck:checked::after{content:'✓';color:#1d5a47}
+</style></head><body>
+<header><h1><span>🏡</span> chorebored</h1>
+<nav id="nav"></nav><select id="who" title="Filter by person"></select><details id="flt" class="dd"><summary id="fs"></summary><div class="pop" id="fp"></div></details>
+<button class="pri" id="add"></button><button class="ghost" id="me"></button></header>
+<main id="main"></main><dialog id="m"></dialog><dialog id="c"></dialog><dialog id="a"></dialog><div id="toast" popover="manual" role="alert"></div>
+<script>
+const $=s=>document.querySelector(s),
+esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),
+api=async(m,u,b)=>{let r;try{r=await fetch('/api/'+u,{method:m,headers:{'Content-Type':'application/json'},body:b&&JSON.stringify(b)})}catch{throw new Error('Can’t reach the server. Check your connection and try again.')}
+if(r.status==204)return null;const j=await r.json().catch(()=>({}));
+if(r.status==401&&!u.startsWith('auth/'))showAuth(false);
+if(!r.ok)throw new Error(j.error||'Something went wrong');return j},
+toast=m=>{const t=$('#toast');t.textContent=m;try{t.showPopover()}catch{}clearTimeout(toast.t);toast.t=setTimeout(()=>{try{t.hidePopover()}catch{}},4500)},
+ask=m=>new Promise(res=>{const d=$('#c');d.innerHTML=`<p class="f" style="font-size:19px;margin-top:0">${m}</p><div class="row"><button class="ghost" id="n">Keep it</button><button class="pri" id="y">Yes, delete</button></div>`;d.showModal();
+$('#n').onclick=()=>{d.close();res(0)};$('#y').onclick=()=>{d.close();res(1)}});
+let S={users:[],epics:[],tasks:[],rewards:[],stats:[]},tab='board',who='',fe=new Set(),ft=new Set(),ME=null;
+const ST=[['new','🌱','New'],['in_progress','🧹','In progress'],['done','✨','Done']],
+PER={week:'Weekly',month:'Monthly',quarter:'Quarterly'},
+U=id=>S.users.find(u=>u.id==id),E=id=>S.epics.find(e=>e.id==id);
+async function load(){try{[S.users,S.epics,S.tasks,S.rewards,S.stats]=await Promise.all(['users','epics','tasks','rewards','stats'].map(u=>api('GET',u)));render()}catch(e){toast(e.message)}}
+const setStatus=async(id,status)=>{if(S.tasks.find(t=>t.id==id)?.recurring&&status=='in_progress')return toast('Daily chores go straight from New to Done ✨');try{await api('PUT','tasks/'+id,{status});load()}catch(e){toast(e.message)}};
+const move=(id,d)=>{const t=S.tasks.find(t=>t.id==id),i=ST.findIndex(s=>s[0]==t.status)+d;if(ST[i])setStatus(id,ST[i][0])};
+
+function card(t){const u=U(t.assignee_id),e=E(t.epic_id),i=ST.findIndex(s=>s[0]==t.status);
+return `<div class="card ${t.status=='done'?'d':''}" draggable="true" data-id="${t.id}">
+<div class="tr">${t.recurring?`<input type="checkbox" class="ck" aria-label="Done" ${t.status=='done'?'checked':''} onchange="setStatus(${t.id},this.checked?'done':'new')">`:''}<div class="t" onclick="taskForm(${t.id})">${esc(t.title)}</div></div><div class="meta">
+<span class="chip">⭐ ${t.points}</span>${t.recurring?'<span class="chip">🔁 daily</span>':dueChip(t)}
+${u?`<span class="chip u">${u.emoji} ${esc(u.name)}</span>`:''}${e?`<span class="chip e">${e.emoji} ${esc(e.title)}</span>`:''}
+<span class="mv">${!t.recurring&&i>0?`<button onclick="move(${t.id},-1)" aria-label="Move back">‹</button>`:''}${!t.recurring&&i<2?`<button onclick="move(${t.id},1)" aria-label="Move forward">›</button>`:''}</span></div></div>`}
+
+function render(){
+$('#nav').innerHTML=[['board','🗂️ Board'],['epics','🧺 Epics'],['rewards','🏆 Rewards']].map(([k,l])=>`<button class="${tab==k?'on':''}" onclick="tab='${k}';render()">${l}</button>`).join('');
+$('#who').innerHTML='<option value="">👨‍👩‍👧 Everyone</option>'+S.users.map(u=>`<option value="${u.id}" ${who==u.id?'selected':''}>${u.emoji} ${esc(u.name)}</option>`).join('');
+$('#add').textContent=tab=='epics'?'+ New epic':tab=='rewards'?'+ New reward':'+ New task';
+$('#add').onclick=()=>tab=='epics'?epicForm():tab=='rewards'?rewardForm():taskForm();
+$('#me').textContent=ME.emoji+' '+ME.name;$('#me').onclick=()=>userForm(ME.id);
+$('#flt').hidden=tab!='board';const hid=fe.size+ft.size;$('#fs').textContent='🧹 Filters'+(hid?' ('+hid+' hidden)':'');
+const box=(on,fn,l)=>`<label><input type="checkbox" ${on?'checked':''} onchange="${fn}"> ${l}</label>`;
+$('#fp').innerHTML='<div class="soft">Type</div>'+[['daily','🔁 Daily'],['once','📌 One-off']].map(([k,l])=>box(!ft.has(k),`tt('${k}')`,l)).join('')
++'<div class="soft" style="margin-top:8px">Epic</div>'+[['none','No epic'],...S.epics.map(e=>[String(e.id),e.emoji+' '+esc(e.title)])].map(([k,l])=>box(!fe.has(k),`tg('${k}')`,l)).join('');
+const tasks=S.tasks.filter(t=>(!who||t.assignee_id==who)&&!fe.has(t.epic_id?String(t.epic_id):'none')&&!ft.has(t.recurring?'daily':'once'));
+$('#main').innerHTML=tab=='board'?`<div class="board">${ST.map(([k,ic,l])=>{const ts=tasks.filter(t=>t.status==k);
+return `<div class="col ${k}" data-s="${k}"><h3>${ic} ${l} <span class="soft">${ts.length}</span></h3>${colBody(ts)}</div>`}).join('')}</div>`
+:tab=='epics'?`<div class="grid">${S.epics.map(e=>{const ts=S.tasks.filter(t=>t.epic_id==e.id),d=ts.filter(t=>t.status=='done').length,pts=ts.reduce((a,t)=>a+t.points,0);
+return `<div class="panel"><div class="sp"><h2>${e.emoji} ${esc(e.title)}</h2><button class="ghost" onclick="epicForm(${e.id})">edit</button></div>
+<div class="bar"><i style="width:${ts.length?d/ts.length*100:0}%"></i></div><div class="soft">${d}/${ts.length} done · ⭐ ${pts} points up for grabs</div>
+${ts.map(t=>`<div class="sub" onclick="taskForm(${t.id})"><span>${t.status=='done'?'✅':t.status=='in_progress'?'🧹':'⬜'}</span><span style="flex:1">${esc(t.title)}</span><span class="chip">⭐ ${t.points}</span><span>${U(t.assignee_id)?.emoji||''}</span></div>`).join('')}
+<div class="row"><button class="ghost" onclick="taskForm(null,${e.id})">+ subtask</button></div></div>`}).join('')||'<div class="empty">No epics yet — add one for a big job like “Garage tidy” 🧺</div>'}</div>`
+:rewardsView();
+bind()}
+
+const byDue=(a,b)=>{const x=a.due||'9999',y=b.due||'9999';return x<y?-1:x>y?1:0},
+tg=k=>{fe.has(k)?fe.delete(k):fe.add(k);render()},tt=k=>{ft.has(k)?ft.delete(k):ft.add(k);render()};
+function dueChip(t){if(!t.due)return'';const n=Math.round((new Date(t.due+'T00:00')-new Date(new Date().toDateString()))/864e5),late=n<0&&t.status!='done',soon=n<=2&&t.status!='done';
+const l=n<0?-n+'d overdue':n==0?'due today':n==1?'due tomorrow':new Date(t.due+'T00:00').toLocaleDateString(undefined,{month:'short',day:'numeric'});
+return `<span class="chip" style="${late?'background:#ffc9d6;color:#8a1c3c':soon?'background:var(--peach);color:#7a3b10':''}">📅 ${l}</span>`}
+function colBody(ts){const o=ts.filter(t=>!t.recurring).sort(byDue),d=ts.filter(t=>t.recurring);
+return !ts.length?'<div class="empty">Nothing here yet</div>':(d.length?`<div class="sh">🔁 Daily</div>${d.map(card).join('')}${o.length?'<div class="dv"></div>':''}`:'')+o.map(card).join('')}
+function rewardsView(){const P=u=>S.stats.find(s=>s.user_id==u.id)||{};
+return `<h2 class="sec">Leaderboard</h2><div class="grid">${S.users.map(u=>{const p=P(u);return `<div class="panel sp"><div class="av">${u.emoji}</div>
+<div style="flex:1"><h2>${esc(u.name)}</h2><div class="soft">Week ${p.week||0} · Month ${p.month||0} · Quarter ${p.quarter||0} ⭐</div></div>${ME.is_admin||u.id==ME.id?`<button class="ghost" onclick="userForm(${u.id})">edit</button>`:''}</div>`}).join('')}
+${ME.is_admin?'<div class="panel" style="display:grid;place-items:center"><button class="pri" onclick="userForm()">+ Add person</button></div>':''}</div>
+<h2 class="sec">Rewards</h2><div class="grid">${S.rewards.map(r=>`<div class="panel"><div class="sp"><h2>${r.emoji} ${esc(r.title)}</h2><button class="ghost" onclick="rewardForm(${r.id})">edit</button></div>
+<div class="soft">${PER[r.period]} · first to ${r.target} ⭐</div>${S.users.map(u=>{const v=P(u)[r.period]||0;return `<div style="margin-top:8px">${u.emoji} ${esc(u.name)} <span class="soft">${v}/${r.target}</span> ${v>=r.target?'🎉':''}<div class="bar"><i style="width:${Math.min(100,v/r.target*100)}%"></i></div></div>`}).join('')}</div>`).join('')}</div>`}
+
+function bind(){$('#who').onchange=e=>{who=e.target.value;render()};
+document.querySelectorAll('.card').forEach(c=>c.ondragstart=e=>e.dataTransfer.setData('id',c.dataset.id));
+document.querySelectorAll('.col').forEach(c=>{c.ondragover=e=>{e.preventDefault();c.classList.add('over')};c.ondragleave=()=>c.classList.remove('over');
+c.ondrop=e=>{e.preventDefault();setStatus(e.dataTransfer.getData('id'),c.dataset.s)}})}
+
+// ---- forms ----
+const inp=(l,n,v='',t='text',r=1)=>`<label>${l}<input name="${n}" type="${t}" value="${esc(v)}" ${t=='number'?'min=0':''} ${r?'required':''}></label>`,
+sel=(l,n,opts,v)=>`<label>${l}<select name="${n}">${opts.map(([k,t])=>`<option value="${k}" ${k==v?'selected':''}>${t}</option>`).join('')}</select></label>`;
+function modal(title,body,save,del,msg){const d=$('#m');
+d.innerHTML=`<form><h3>${title}</h3>${body}<div class="row"><button type="button" class="ghost" id="x">Cancel</button>${del?'<button type="button" class="ghost red" id="del">Delete</button>':''}<button class="pri">Save 💖</button></div></form>`;
+d.showModal();$('#x').onclick=()=>d.close();
+if(del)$('#del').onclick=async()=>{if(await ask(msg||'Delete this? This can’t be undone.')){try{await del();d.close();load()}catch(e){toast(e.message)}}};
+wire(d,async o=>{await save(o);d.close();load()})}
+const save=(p,id,o)=>api(id?'PUT':'POST',id?`${p}/${id}`:p,o);
+
+function taskForm(id,epic,rec){const t=S.tasks.find(t=>t.id==id)||{points:1,status:'new',epic_id:epic||'',recurring:rec?1:0};
+modal(id?'Edit task':'New task',inp('What needs doing?','title',t.title)+inp('Points ⭐','points',t.points,'number')+inp('Deadline (optional)','due',t.due||'','date',0)
++sel('Who’s on it?','assignee_id',[['','Nobody yet'],...S.users.map(u=>[u.id,u.emoji+' '+u.name])],t.assignee_id)
++sel('Epic','epic_id',[['','No epic'],...S.epics.map(e=>[e.id,e.emoji+' '+e.title])],t.epic_id)
++sel('Status','status',ST.map(s=>[s[0],s[1]+' '+s[2]]),t.status)
++`<label>Notes<textarea name="notes" rows="2">${esc(t.notes)}</textarea></label><label><input type="checkbox" name="recurring" style="width:auto" ${t.recurring?'checked':''}> 🔁 Repeats every day</label>`,
+o=>save('tasks',id,{...o,points:+o.points,assignee_id:o.assignee_id||null,epic_id:o.epic_id||null,status:o.recurring&&o.status=='in_progress'?'new':o.status,recurring:o.recurring?1:0,due:o.recurring?null:(o.due||null)}),id&&(()=>api('DELETE','tasks/'+id)))}
+function epicForm(id){const e=E(id)||{};modal(id?'Edit epic':'New epic',inp('Emoji','emoji',e.emoji||'🧺')+inp('Epic name','title',e.title),o=>save('epics',id,o),id&&(()=>api('DELETE','epics/'+id)),'Delete this epic and all its subtasks? This can’t be undone.')}
+function userForm(id){const u=U(id)||{},me=id==ME.id;modal(me?'Your profile':id?'Edit person':'New person',inp('Emoji','emoji',u.emoji||'🐻')+inp('Name','name',u.name)+inp('Username','username',u.username||'')+inp(id?'New password (optional)':'Password','password','','password',!id)+(me?'<div class="row"><button type="button" class="ghost" onclick="logout()">Log out</button></div>':''),
+o=>save('users',id,o).then(r=>{if(me)ME=r}),id&&ME.is_admin&&!me&&(()=>api('DELETE','users/'+id)))}
+function rewardForm(id){const r=S.rewards.find(r=>r.id==id)||{period:'week',target:30};
+modal(id?'Edit reward':'New reward',inp('Emoji','emoji',r.emoji||'🎁')+inp('Reward','title',r.title)+sel('Period','period',Object.entries(PER),r.period)+inp('Points needed ⭐','target',r.target,'number'),
+o=>save('rewards',id,{...o,target:+o.target}),id&&(()=>api('DELETE','rewards/'+id)))}
+function wire(d,onSub){const f=d.querySelector('form');f.noValidate=true;f.onsubmit=async e=>{e.preventDefault();
+const bad=[...f.elements].find(x=>x.required&&!x.value.trim());if(bad){toast('Please fill in “'+bad.closest('label').childNodes[0].textContent.trim()+'”');bad.focus();return}
+try{await onSub(Object.fromEntries(new FormData(f)))}catch(x){toast(x.message)}}}
+function showAuth(setup){const d=$('#a');d.oncancel=e=>e.preventDefault();
+d.innerHTML=`<form><h3 style="font-size:26px">🏡 chorebored</h3><p class="soft">${setup?'Welcome! Create the first account. You’ll be the admin and can add everyone else.':'Log in to your household'}</p>${setup?inp('Your name','name')+inp('Emoji','emoji','🐻'):''}${inp('Username','username')}${inp('Password','password','','password')}<div class="row"><button class="pri">${setup?'Create account 💖':'Log in'}</button></div></form>`;
+if(!d.open)d.showModal();wire(d,async o=>{await api('POST',setup?'auth/setup':'auth/login',o);d.close();boot()})}
+const logout=async()=>{try{await api('POST','auth/logout');location.reload()}catch(e){toast(e.message)}};
+async function boot(){try{const a=await api('GET','auth/me');ME=a.user;if(!ME)return showAuth(a.setup);load()}catch(e){toast(e.message)}}
+boot();
+</script></body></html>

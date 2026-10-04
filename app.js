@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY, name TEXT NOT NULL, emo
 CREATE TABLE IF NOT EXISTS epics(id INTEGER PRIMARY KEY, title TEXT NOT NULL, emoji TEXT DEFAULT '🧺');
 CREATE TABLE IF NOT EXISTS tasks(id INTEGER PRIMARY KEY, title TEXT NOT NULL, notes TEXT DEFAULT '', points INTEGER DEFAULT 1,
   status TEXT DEFAULT 'new' CHECK(status IN('new','in_progress','done')), assignee_id INTEGER, epic_id INTEGER,
-  recurring INTEGER DEFAULT 0, done_date TEXT, due TEXT);
+  recurring INTEGER DEFAULT 0, done_date TEXT, due TEXT, owner_id INTEGER);
 CREATE TABLE IF NOT EXISTS rewards(id INTEGER PRIMARY KEY, title TEXT NOT NULL, emoji TEXT DEFAULT '🎁', period TEXT CHECK(period IN('week','month','quarter')), target INTEGER DEFAULT 30);
 CREATE TABLE IF NOT EXISTS points_log(id INTEGER PRIMARY KEY, user_id INTEGER, task_id INTEGER, points INTEGER, day TEXT);
 CREATE TABLE IF NOT EXISTS sessions(token TEXT PRIMARY KEY, user_id INTEGER);`;
@@ -27,6 +27,7 @@ INSERT INTO rewards(title,emoji,period,target) VALUES('Movie night pick','🎬',
 let ready;
 const init = () => ready || (ready = (async () => {
   await db.executeMultiple(SCHEMA);
+  if (!(await Q('PRAGMA table_info(tasks)')).some(c => c.name === 'owner_id')) await run('ALTER TABLE tasks ADD COLUMN owner_id INTEGER');
   const n = await one('SELECT (SELECT COUNT(*) FROM users) u, (SELECT COUNT(*) FROM tasks) t');
   if (!n.u && !n.t) await db.executeMultiple(SEED);
 })().catch(e => { ready = null; throw e; }));
@@ -113,37 +114,43 @@ function crud(name, table, cols, after, before) {
   app.get(`/api/${name}`, A(async (q, r) => {
     if (table === 'tasks') // recurring tasks come back fresh each new day
       await run(`UPDATE tasks SET status='new',done_date=NULL WHERE recurring=1 AND status!='new' AND (done_date IS NULL OR done_date<?)`, [today()]);
-    r.json(await Q(`SELECT * FROM ${table} ORDER BY id`));
+    r.json(table === 'tasks' ? await Q('SELECT * FROM tasks WHERE owner_id IS NULL OR owner_id=? ORDER BY id', [q.user.id]) // personal tasks: owner only
+      : await Q(`SELECT * FROM ${table} ORDER BY id`));
   }));
   app.post(`/api/${name}`, A(async (q, r) => {
+    if (table === 'tasks' && q.body.owner_id) q.body.owner_id = q.user.id;
     const c = cols.filter(k => k in q.body);
     const x = await run(`INSERT INTO ${table}(${c}) VALUES(${c.map(() => '?')})`, c.map(k => q.body[k]));
     r.json(await row(table, Number(x.lastInsertRowid)));
   }));
   app.put(`/api/${name}/:id`, A(async (q, r) => {
     const old = await row(table, q.params.id);
-    if (!old) throw fail(404, 'Not found');
+    if (!old || (table === 'tasks' && old.owner_id && old.owner_id !== q.user.id)) throw fail(404, 'Not found');
+    if (table === 'tasks') delete q.body.owner_id;
     const c = cols.filter(k => k in q.body);
     if (c.length) await run(`UPDATE ${table} SET ${c.map(k => k + '=?')} WHERE id=?`, [...c.map(k => q.body[k]), old.id]);
     if (after) await after(old, await row(table, old.id), q);
     r.json(await row(table, old.id));
   }));
   app.delete(`/api/${name}/:id`, A(async (q, r) => {
+    if (table === 'tasks') { const t = await row('tasks', q.params.id); if (t?.owner_id && t.owner_id !== q.user.id) throw fail(404, 'Not found'); }
     if (before) await before(q.params.id);
     await run(`DELETE FROM ${table} WHERE id=?`, [q.params.id]); r.sendStatus(204);
   }));
 }
 crud('epics', 'epics', ['title', 'emoji'], null, id => run('DELETE FROM tasks WHERE epic_id=?', [id]));
 crud('rewards', 'rewards', ['title', 'emoji', 'period', 'target']);
-crud('tasks', 'tasks', ['title', 'notes', 'points', 'status', 'assignee_id', 'epic_id', 'recurring', 'due'], async (old, now, q) => {
+crud('tasks', 'tasks', ['title', 'notes', 'points', 'status', 'assignee_id', 'epic_id', 'recurring', 'due', 'owner_id'], async (old, now, q) => {
   if (old.status === now.status) return;
   if (now.status === 'done') {
     await run('UPDATE tasks SET done_date=? WHERE id=?', [today(), now.id]);
+    if (now.owner_id) return; // personal tasks earn no points
     let who = now.assignee_id; // nobody assigned? whoever finishes it gets the points
     if (!who) { who = q.user.id; await run('UPDATE tasks SET assignee_id=? WHERE id=?', [who, now.id]); }
     await run('INSERT INTO points_log(user_id,task_id,points,day) VALUES(?,?,?,?)', [who, now.id, now.points, today()]);
   } else if (old.status === 'done') { // un-done: take the points back
     await run('UPDATE tasks SET done_date=NULL WHERE id=?', [now.id]);
+    if (now.owner_id) return;
     await run('DELETE FROM points_log WHERE id=(SELECT MAX(id) FROM points_log WHERE task_id=?)', [now.id]);
   }
 });
